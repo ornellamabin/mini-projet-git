@@ -84,10 +84,10 @@ unit-tests:
       print("All tests passed successfully!")
       EOF
 
-      # Exécute le test
+      Exécute le test
       python dynamic_test.py
 
-      # Crée des fichiers de rapport pour la pipeline
+       Crée des fichiers de rapport pour la pipeline
       echo '<?xml version="1.0" encoding="UTF-8"?><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="2" time="0.1"></testsuite>' > test-results.xml
       echo '<coverage></coverage>' > coverage.xml
   artifacts:
