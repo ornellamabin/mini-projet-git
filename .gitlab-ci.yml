@@ -13,8 +13,9 @@ stages:
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_TLS_CERTDIR: ""
-  CONTAINER_TEST_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
-  CONTAINER_RELEASE_IMAGE: $CI_REGISTRY_IMAGE:latest
+  DOCKERHUB_IMAGE: gseha/flask-app  # ← Ajoutez cette ligne
+  CONTAINER_TEST_IMAGE: $DOCKERHUB_IMAGE:$CI_COMMIT_REF_SLUG  # ← Modifié
+  CONTAINER_RELEASE_IMAGE: $DOCKERHUB_IMAGE:latest  # ← Modifié
   SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
   GIT_DEPTH: "0"
 
@@ -84,10 +85,10 @@ unit-tests:
       print("All tests passed successfully!")
       EOF
 
-      Exécute le test
+      # Exécute le test
       python dynamic_test.py
 
-       Crée des fichiers de rapport pour la pipeline
+      # Crée des fichiers de rapport pour la pipeline
       echo '<?xml version="1.0" encoding="UTF-8"?><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="2" time="0.1"></testsuite>' > test-results.xml
       echo '<coverage></coverage>' > coverage.xml
   artifacts:
@@ -97,14 +98,14 @@ unit-tests:
       - coverage.xml
     expire_in: 1 week
 
-# Packaging - Reconstruction et push de l'image
+# Packaging - Push vers DockerHub
 package:
   stage: package
   image: docker:latest
   script:
     - docker build -t $CONTAINER_TEST_IMAGE .
     - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin  # ← Modifié
     - docker push $CONTAINER_TEST_IMAGE
     - docker push $CONTAINER_RELEASE_IMAGE
   rules:
